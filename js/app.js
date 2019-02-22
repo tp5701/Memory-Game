@@ -1,16 +1,3 @@
-/*
- * Create a list that holds all of your cards
- */
- var cards = ["fa fa-cube", "fa fa-paper-plane-o", "fa fa-bicycle", "fa fa-bolt",
-              "fa fa-bomb", "fa fa-leaf", "fa fa-diamond", "fa fa-anchor"];
-
-/*
- * Display the cards on the page
- *   - shuffle the list of cards using the provided "shuffle" method below
- *   - loop through each card and create its HTML
- *   - add each card's HTML to the page
- */
-
 // Shuffle function from http://stackoverflow.com/a/2450976
 function shuffle(array) {
     var currentIndex = array.length, temporaryValue, randomIndex;
@@ -25,8 +12,6 @@ function shuffle(array) {
 
     return array;
 };
-
-
 /*
  * set up the event listener for a card. If a card is clicked:
  *  - display the card's symbol (put this functionality in another function that you call from this one)
@@ -37,27 +22,42 @@ function shuffle(array) {
  *    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
  *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
  */
+var _gameBoardElement = document.querySelector('.deck');
+var _cards = _gameBoardElement.querySelectorAll('.card');
+var _movesElement = document.querySelector(".moves");
 var _cardClassName = "card";
-var _openedCardClassName = "card open show";
-var _matchedCardClassName = "card match";
-var _unselectedCardClassName = ""
+var _awaitingFirstCardClass = ""
 var _currentMatchClass = "";
 var _firstCard;
 var _pendingFlush = false;
 
 function initialize() {
-    var list = document.querySelector('.deck');
-    var cards = list.querySelectorAll('.card');
-
-    var shuffledCards = shuffle(Array.from(cards));
-    shuffledCards.forEach(function (card){
-        // add our custom handler here
-        card.onclick = onClickHandler;
-        // elements can only exist in a list once
-        // thus, readding them will remove the original
-        list.appendChild(card);
-    });
+    initResetButton();
+    shuffleCardsHandler();
+    _movesElement.innerHTML = 0;
 }
+
+function initResetButton() {
+    var resetButton = document.querySelector('.fa-repeat');
+    resetButton.onclick = function() {
+        shuffleCardsHandler();
+        _currentMatchClass = _awaitingFirstCardClass;
+        _firstCard = null;
+        _movesElement.innerHTML = 0;
+    };
+};
+
+function shuffleCardsHandler() {
+    var shuffledCards = shuffle(Array.from(_cards));
+
+    shuffledCards.forEach(function(card) {
+        card.className = _cardClassName;
+        card.onclick = onClickHandler;
+        _gameBoardElement.appendChild(card);
+    });
+};
+
+
 
 function onClickHandler(event) {
     // EXIT CASE: we want to wait for previous selections to clear
@@ -66,54 +66,49 @@ function onClickHandler(event) {
     }
 
     var clickedCard = event.srcElement;
-    
-    switch (clickedCard.className) {
-        case _cardClassName:
-            console.log("Clicked unopened card");
-            openCardHandler(clickedCard);
-            break;
-        case _openedCardClassName:
-            console.log("Clicked opened card");
-            break;
-        case _matchedCardClassName:
-            console.log("Clicked matched card");
-            break;
-        default: 
-            break;
-    };
+    if (clickedCard.className === _cardClassName) {
+        openCardHandler(clickedCard);
+    }
 };
 
 function openCardHandler(card) {
-    card.className = _openedCardClassName;
+    var openedCardClassName = "card open show";
+    card.className = openedCardClassName;
 
-    if (_currentMatchClass === _unselectedCardClassName) {
+    if (_currentMatchClass === _awaitingFirstCardClass) {
         firstCardTurnedHandler(card);
     } else {
+        _movesElement.innerHTML = parseInt(_movesElement.innerHTML) + 1;
         secondCardTurnedHandler(card);
     } 
 };
 
 function secondCardTurnedHandler(card) {
-    var cardType = card.querySelector(".fa");
+    var cardType = getCardTypeElementFromCardElement(card);
     if (cardType.className === _currentMatchClass) {
         successfullyMatchedHandler(card, _firstCard);
     } else {
         failedToMatchHandler(card, _firstCard);
     }
 
-    _currentMatchClass = _unselectedCardClassName;
+    _currentMatchClass = _awaitingFirstCardClass;
     _firstCard = null;
 };
 
 function firstCardTurnedHandler(card) {
-    var cardType = card.querySelector(".fa");
+    var cardType = getCardTypeElementFromCardElement(card);
     _firstCard = card;
     _currentMatchClass = cardType.className;
 };
 
+function getCardTypeElementFromCardElement(card) {
+    return card.querySelector(".fa");
+};
+
 function successfullyMatchedHandler(match1, match2) {
-    match1.className = _matchedCardClassName;
-    match2.className = _matchedCardClassName; 
+    var matchedCardClassName = "card match";
+    match1.className = matchedCardClassName;
+    match2.className = matchedCardClassName; 
 };
 
 function failedToMatchHandler(match1, match2) {
