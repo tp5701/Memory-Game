@@ -1,7 +1,8 @@
 /*
  * Create a list that holds all of your cards
  */
-
+ var cards = ["fa fa-cube", "fa fa-paper-plane-o", "fa fa-bicycle", "fa fa-bolt",
+              "fa fa-bomb", "fa fa-leaf", "fa fa-diamond", "fa fa-anchor"];
 
 /*
  * Display the cards on the page
@@ -23,7 +24,7 @@ function shuffle(array) {
     }
 
     return array;
-}
+};
 
 
 /*
@@ -36,3 +37,74 @@ function shuffle(array) {
  *    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
  *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
  */
+var unturnedCardClassName = "card";
+var turnedCardClassName = "card open show";
+var matchedCardClassName = "card match";
+var unselectedCardClassName = ""
+var currentMatchClass = "";
+var unmatchedOpenCard;
+var pendingCardSwap = false;
+
+function onClickHandler(event) {
+    var clickedCard = event.srcElement;
+    if (!pendingCardSwap) {
+        switch (clickedCard.className) {
+            case unturnedCardClassName:
+                console.log("Clicked unopened card");
+                openCardHandler(clickedCard);
+                break;
+            case turnedCardClassName:
+                console.log("Clicked opened card");
+                break;
+            case matchedCardClassName:
+                console.log("Clicked matched card");
+                break;
+            default: 
+                break;
+        };
+    }
+};
+
+function openCardHandler(element) {
+    element.className = turnedCardClassName;
+    var cardType = element.querySelector(".fa");
+
+    if (currentMatchClass === unselectedCardClassName) {
+        unmatchedOpenCard = element;
+        currentMatchClass = cardType;
+    } else {
+        if (cardType.className === currentMatchClass.className) {
+            unmatchedOpenCard.className = matchedCardClassName;
+            element.className = matchedCardClassName; 
+        } else {
+            var millisecondsToWait = 1000;
+            var match1 = element;
+            var match2 = unmatchedOpenCard;
+            pendingCardSwap = true;
+            setTimeout(function() {
+                match1.className = unturnedCardClassName;
+                match2.className = unturnedCardClassName; 
+                pendingCardSwap = false;
+            }, millisecondsToWait);
+        }
+
+        currentMatchClass = unselectedCardClassName;
+        unmatchedOpenCard = null;
+    } 
+};
+
+
+// This is wrapped in () so that it will be called on intial page load only
+ (function() {
+    var list = document.querySelector('.deck');
+    var cards = list.querySelectorAll('.card');
+    
+    var shuffledCards = shuffle(cards);
+    shuffledCards.forEach(function (card){
+        // add our custom handler here
+        card.onclick = onClickHandler;
+        // elements can only exist in a list once
+        // thus, readding them will remove the original
+        list.appendChild(card);
+    });
+})();
