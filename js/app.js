@@ -16,6 +16,12 @@ function shuffle(array) {
 var _gameBoardElement = document.querySelector('.deck');
 var _cards = _gameBoardElement.querySelectorAll('.card');
 var _movesElement = document.querySelector(".moves");
+var _starElements = [
+    document.getElementById("star1"),
+    document.getElementById("star2"),
+    document.getElementById("star3")
+];
+
 var _cardClassName = "card";
 var _awaitingFirstCardClass = ""
 var _currentMatchClass = "";
@@ -24,31 +30,34 @@ var _pendingFlush = false;
 var _totalMatches = 8;
 var _currentMatches = 0;
 
+
+/* 
+ *  shuffles the cards and hooks up controls for the game
+*/ 
 function initialize() {
     initResetButton();
     shuffleCardsHandler();
     setMoveCount(0);
 }
 
+/* 
+ *  creates and adds a click listener to implement reset logic
+*/ 
 function initResetButton() {
     var resetButton = document.querySelector('.fa-repeat');
     resetButton.onclick = function() {
-        shuffleCardsHandler();
         _currentMatchClass = _awaitingFirstCardClass;
         _firstCard = null;
         _currentMatches = 0;
         setMoveCount(0);
+        resetStars();
+        shuffleCardsHandler();
     };
 };
 
-function setMoveCount(number) {
-    _movesElement.innerHTML = number;
-};
-
-function getMoveCount() {
-    return parseInt(_movesElement.innerHTML);
-}
-
+/* 
+ *  reinitializes the cards for a new game
+*/ 
 function shuffleCardsHandler() {
     var shuffledCards = shuffle(Array.from(_cards));
 
@@ -59,6 +68,10 @@ function shuffleCardsHandler() {
     });
 };
 
+/* 
+ *  input: event that triggered handler, user click
+ *  all card clicks logic will start here
+*/ 
 function onClickHandler(event) {
     // EXIT CASE: we want to wait for previous selections to clear
     if (_pendingFlush){
@@ -71,6 +84,11 @@ function onClickHandler(event) {
     }
 };
 
+/* 
+ *  input: DOM element for the card that the user clicked
+ *  responsible for changing the DOM as well as delegating
+ *  the many events that can happen on card flip
+*/ 
 function openCardHandler(card) {
     var openedCardClassName = "card open show";
     card.className = openedCardClassName;
@@ -78,8 +96,9 @@ function openCardHandler(card) {
     if (_currentMatchClass === _awaitingFirstCardClass) {
         firstCardTurnedHandler(card);
     } else {
-        setMoveCount(getMoveCount() + 1);
         secondCardTurnedHandler(card);
+        setMoveCount(getMoveCount() + 1);
+        checkStarStatus();
     } 
 
     if (_currentMatches === _totalMatches) {
@@ -87,6 +106,21 @@ function openCardHandler(card) {
     }
 };
 
+/* 
+ *  input: DOM element for the card that the user clicked
+ *  responsible for persisting the first card flip
+*/ 
+function firstCardTurnedHandler(card) {
+    var cardType = getCardTypeElementFromCardElement(card);
+    _firstCard = card;
+    _currentMatchClass = cardType.className;
+};
+
+/* 
+ *  input: DOM element for the card that the user clicked
+ *  responsible for determining if a match has occured as well
+ *  as resetting the properties for a fresh move
+*/ 
 function secondCardTurnedHandler(card) {
     var cardType = getCardTypeElementFromCardElement(card);
     if (cardType.className === _currentMatchClass) {
@@ -99,23 +133,11 @@ function secondCardTurnedHandler(card) {
     _firstCard = null;
 };
 
-function firstCardTurnedHandler(card) {
-    var cardType = getCardTypeElementFromCardElement(card);
-    _firstCard = card;
-    _currentMatchClass = cardType.className;
-};
-
-function getCardTypeElementFromCardElement(card) {
-    return card.querySelector(".fa");
-};
-
-function successfullyMatchedHandler(match1, match2) {
-    var matchedCardClassName = "card match";
-    match1.className = matchedCardClassName;
-    match2.className = matchedCardClassName;
-    _currentMatches += 1;
-};
-
+/* 
+ *  input: DOM elements for each card chosen by the player during this move
+ *  responsible for unflipping the selected cards after allowing player to 
+ *  see the choices made
+*/ 
 function failedToMatchHandler(match1, match2) {
     _pendingFlush = true;
     // wait 1 second for player to see outcome before resetting
@@ -124,6 +146,58 @@ function failedToMatchHandler(match1, match2) {
         match2.className = _cardClassName; 
         _pendingFlush = false;
     }, 1000);
+};
+
+/* 
+ *  input: DOM elements for each card chosen by the player during this move
+ *  responsible for changing the styles to that of matched
+*/ 
+function successfullyMatchedHandler(match1, match2) {
+    var matchedCardClassName = "card match";
+    match1.className = matchedCardClassName;
+    match2.className = matchedCardClassName;
+    _currentMatches += 1;
+};
+
+/* 
+ *  responsible for turning off stars after certain thresholds
+*/ 
+function checkStarStatus() {
+    if (getMoveCount() === _totalMatches) {
+        _starElements[0].style.display = "none";
+    } else if (getMoveCount() === _totalMatches * 2) {
+        _starElements[1].style.display = "none";
+    } else if (getMoveCount() === _totalMatches * 3) {
+        _starElements[2].style.display = "none";
+    }
+};
+
+/* 
+ *  input: DOM element for the card that the user clicked
+ *  returns the element with the card type player selected
+*/ 
+function getCardTypeElementFromCardElement(card) {
+    return card.querySelector(".fa");
+};
+
+/* 
+ *  retriever for move count displayed on the DOM
+*/ 
+function getMoveCount() {
+    return parseInt(_movesElement.innerHTML);
+};
+
+/* 
+ *  setter for move count displayed on the DOM
+*/ 
+function setMoveCount(number) {
+    _movesElement.innerHTML = number;
+};
+
+function resetStars() {
+    _starElements[0].style.display = "";
+    _starElements[1].style.display = "";
+    _starElements[2].style.display = "";
 };
 
 function sendWinDialog() {
