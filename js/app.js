@@ -38,7 +38,7 @@ function initialize() {
     initResetButton();
     shuffleCardsHandler();
     setMoveCount(0);
-}
+};
 
 /* 
  *  creates and adds a click listener to implement reset logic
@@ -163,11 +163,12 @@ function successfullyMatchedHandler(match1, match2) {
  *  responsible for turning off stars after certain thresholds
 */ 
 function checkStarStatus() {
-    if (getMoveCount() === _totalMatches) {
+    var check = getMoveCount() - 1;
+    if (check === _totalMatches) {
         _starElements[0].style.display = "none";
-    } else if (getMoveCount() === _totalMatches * 2) {
+    } else if (check === _totalMatches * 2) {
         _starElements[1].style.display = "none";
-    } else if (getMoveCount() === _totalMatches * 3) {
+    } else if (check === _totalMatches * 3) {
         _starElements[2].style.display = "none";
     }
 };
