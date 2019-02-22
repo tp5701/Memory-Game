@@ -2,19 +2,15 @@
 
 ## Table of Contents
 
-* [Instructions](#instructions)
-* [Contributing](#contributing)
+* [Overview](#overview)
+* [Dependencies](#dependencies)
 
-## Instructions
+## Overview
 
-The starter project has some HTML and CSS styling to display a static version of the Memory Game project. You'll need to convert this project from a static project to an interactive one. This will require modifying the HTML and CSS files, but primarily the JavaScript file.
+This project allows a user to load the included index.html and play through a card matching game within their browser of choice. Clicking cards will cause them to flip over. The goal of the game is for the player to match all 16 cards, for a total of 8 unique matches, in as few moves as possible. Every 10 moves the player will lose a star, down to a minimum of 1. At any point in time the player can utilize the reset button on the top right of the board to immediately reset the board.
 
-To get started, open `js/app.js` and start building out the app's functionality
+## Dependencies
 
-For specific, detailed instructions, look at the project instructions in the [Udacity Classroom](https://classroom.udacity.com/me).
-
-## Contributing
-
-This repository is the starter code for _all_ Udacity students. Therefore, we most likely will not accept pull requests.
-
-For details, check out [CONTRIBUTING.md](CONTRIBUTING.md).
+This project is mostly self contained, however there are two css files we are loading dynamically upon intial page load
+* https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css
+* https://fonts.googleapis.com/css?family=Coda
