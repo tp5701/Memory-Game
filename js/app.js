@@ -12,16 +12,7 @@ function shuffle(array) {
 
     return array;
 };
-/*
- * set up the event listener for a card. If a card is clicked:
- *  - display the card's symbol (put this functionality in another function that you call from this one)
- *  - add the card to a *list* of "open" cards (put this functionality in another function that you call from this one)
- *  - if the list already has another card, check to see if the two cards match
- *    + if the cards do match, lock the cards in the open position (put this functionality in another function that you call from this one)
- *    + if the cards do not match, remove the cards from the list and hide the card's symbol (put this functionality in another function that you call from this one)
- *    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
- *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
- */
+
 var _gameBoardElement = document.querySelector('.deck');
 var _cards = _gameBoardElement.querySelectorAll('.card');
 var _movesElement = document.querySelector(".moves");
@@ -30,6 +21,8 @@ var _awaitingFirstCardClass = ""
 var _currentMatchClass = "";
 var _firstCard;
 var _pendingFlush = false;
+var _totalMatches = 8;
+var _currentMatches = 0;
 
 function initialize() {
     initResetButton();
@@ -43,6 +36,7 @@ function initResetButton() {
         shuffleCardsHandler();
         _currentMatchClass = _awaitingFirstCardClass;
         _firstCard = null;
+        _currentMatches = 0;
         setMoveCount(0);
     };
 };
@@ -87,6 +81,10 @@ function openCardHandler(card) {
         setMoveCount(getMoveCount() + 1);
         secondCardTurnedHandler(card);
     } 
+
+    if (_currentMatches === _totalMatches) {
+        sendWinDialog();
+    }
 };
 
 function secondCardTurnedHandler(card) {
@@ -114,7 +112,8 @@ function getCardTypeElementFromCardElement(card) {
 function successfullyMatchedHandler(match1, match2) {
     var matchedCardClassName = "card match";
     match1.className = matchedCardClassName;
-    match2.className = matchedCardClassName; 
+    match2.className = matchedCardClassName;
+    _currentMatches += 1;
 };
 
 function failedToMatchHandler(match1, match2) {
@@ -125,6 +124,10 @@ function failedToMatchHandler(match1, match2) {
         match2.className = _cardClassName; 
         _pendingFlush = false;
     }, 1000);
+};
+
+function sendWinDialog() {
+    window.alert("Congratulations, you won in " + getMoveCount() + " moves!");
 };
 
 initialize();
