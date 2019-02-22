@@ -99,7 +99,7 @@ function openCardHandler(element) {
     var list = document.querySelector('.deck');
     var cards = list.querySelectorAll('.card');
     
-    var shuffledCards = shuffle(cards);
+    var shuffledCards = shuffle(Array.from(cards));
     shuffledCards.forEach(function (card){
         // add our custom handler here
         card.onclick = onClickHandler;
