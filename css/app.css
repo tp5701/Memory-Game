@@ -114,3 +114,39 @@ h1 {
 .timer {
     padding-left: 15%;
 }
+
+/*
+ * Styles for the modal
+ */
+.modal {
+    display: none;
+    position: absolute;
+    top: 25%;
+    left: 25%;
+    margin-top: -50px;
+    margin-left: -50px;
+    width: 50%;
+    height: 33%;
+    background: linear-gradient(160deg, #aa7ecd 0%, #02ccba 100%);
+    padding: 32px;
+    border-radius: 10px;
+    box-shadow: 12px 15px 20px 0 rgba(46, 61, 73, 0.5);
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 0 3em;
+}
+
+.modaltext {
+    width: 100%;
+}
+
+.modalbtn {
+    width: 25%;
+    margin-right: 35%;
+    float: right;
+}
+
+.modalrow {
+    width: 100%;
+}

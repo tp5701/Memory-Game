@@ -15,6 +15,7 @@ function shuffle(array) {
 
 const _gameBoardElement = document.querySelector('.deck');
 const _cards = _gameBoardElement.querySelectorAll('.card');
+const _modalElement = document.querySelector(".modal");
 const _movesElement = document.querySelector(".moves");
 const _timerElement = document.querySelector(".timer");
 const _starElements = [
@@ -33,31 +34,57 @@ let _currentMatches = 0;
 let _gameOver = false;
 let _gameTime = 0;
 let _timer = null;
+let _starCount = 3;
 
 /**
 * @description initializes game
 */
 function initialize() {
     initResetButton();
+    initModalButton();
     setMoveCount(0);
     shuffleCards();
     resetTimerOnDOM();
+
+}
+
+/**
+* @description adds a click listener to implement replay game logic
+*/
+function initModalButton() {
+    let modalButton = document.querySelector('.modalbtn');
+    modalButton.onclick = playAgain;
 }
 /**
-* @description creates and adds a click listener to implement reset logic
+* @description adds a click listener to implement reset logic
 */
 function initResetButton() {
-    var resetButton = document.querySelector('.fa-repeat');
-    resetButton.onclick = function() {
-        _currentMatchClass = _awaitingFirstCardClass;
-        _firstCard = null;
-        _currentMatches = 0;
-        _gameOver = false;
-        setMoveCount(0);
-        resetStars();
-        clearTimer();
-        shuffleCards();
-    };
+    let resetButton = document.querySelector('.fa-repeat');
+    resetButton.onclick = resetGame;
+}
+
+/**
+* @description logic necessary to facilitate a reset of the game
+*/
+function resetGame() {
+    _currentMatchClass = _awaitingFirstCardClass;
+    _firstCard = null;
+    _currentMatches = 0;
+    _starCount = 3;
+    _gameOver = false;
+    _gameTime = 0;
+    setMoveCount(0);
+    resetTimerOnDOM();
+    resetStars();
+    shuffleCards();
+}
+
+/**
+* @description logic necessary to facilitate another game
+*/
+function playAgain() {
+    resetGame();
+    _modalElement.style.display = "none";
 }
 
 /**
@@ -68,10 +95,10 @@ function startTimer() {
     _timer = setInterval(function() {
         if (_gameOver) {
             clearTimer();
+        } else {
+            _gameTime++;
+            _timerElement.innerHTML = _gameTime;
         }
-
-        _gameTime++;
-        _timerElement.innerHTML = _gameTime;
     }, 1000);
 };
 
@@ -80,8 +107,6 @@ function startTimer() {
 */
 function clearTimer() {
     clearInterval(_timer);
-    resetTimerOnDOM();
-    _gameTime = 0;
     _timer = null;
 }
 
@@ -89,7 +114,7 @@ function clearTimer() {
 * @description reinitializes the cards for a new game
 */
 function shuffleCards() {
-    var shuffledCards = shuffle(Array.from(_cards));
+    let shuffledCards = shuffle(Array.from(_cards));
 
     shuffledCards.forEach(function(card) {
         card.className = _cardClassName;
@@ -108,7 +133,7 @@ function onClickHandler(event) {
         return;
     }
 
-    var clickedCard = event.srcElement;
+    let clickedCard = event.srcElement;
     if (clickedCard.className === _cardClassName) {
         openCardHandler(clickedCard);
     }
@@ -124,7 +149,7 @@ function openCardHandler(card) {
         startTimer();
     }
 
-    var openedCardClassName = "card open show";
+    let openedCardClassName = "card open show";
     card.className = openedCardClassName;
 
     if (_currentMatchClass === _awaitingFirstCardClass) {
@@ -146,7 +171,7 @@ function openCardHandler(card) {
 * @param {Element} card
 */
 function firstCardTurnedHandler(card) {
-    var cardType = getCardTypeElementFromCardElement(card);
+    let cardType = getCardTypeElementFromCardElement(card);
     _firstCard = card;
     _currentMatchClass = cardType.className;
 };
@@ -157,7 +182,7 @@ function firstCardTurnedHandler(card) {
 * @param {Element} card
 */
 function secondCardTurnedHandler(card) {
-    var cardType = getCardTypeElementFromCardElement(card);
+    let cardType = getCardTypeElementFromCardElement(card);
     if (cardType.className === _currentMatchClass) {
         successfullyMatchedHandler(card, _firstCard);
     } else {
@@ -190,7 +215,7 @@ function failedToMatchHandler(match1, match2) {
 * @param {Element} match2
 */
 function successfullyMatchedHandler(match1, match2) {
-    var matchedCardClassName = "card match";
+    let matchedCardClassName = "card match";
     match1.className = matchedCardClassName;
     match2.className = matchedCardClassName;
     _currentMatches += 1;
@@ -200,13 +225,13 @@ function successfullyMatchedHandler(match1, match2) {
 * @description responsible for turning off stars after certain thresholds
 */
 function checkStarStatus() {
-    var check = getMoveCount() - 1;
+    let check = getMoveCount() - 1;
     if (check === 10) {
         _starElements[0].style.display = "none";
+        _starCount--;
     } else if (check === 20) {
         _starElements[1].style.display = "none";
-    } else if (check === 30) {
-        _starElements[2].style.display = "none";
+        _starCount--;
     }
 };
 
@@ -253,8 +278,11 @@ function resetTimerOnDOM() {
 */
 function sendWinDialog() {
     _gameOver = true;
-    var finishTime = _gameTime;
-    window.alert("Congratulations, you won in " + finishTime + " seconds with " + getMoveCount() + " moves!");
+    let finishTime = _gameTime;
+    let starString = _starCount > 1 ? " stars" : " star";
+    let modalText = "Congratulations, you won with " + _starCount + starString + " in "  + finishTime + " seconds!";
+    document.querySelector('.modaltext').innerHTML = modalText;
+    _modalElement.style.display = "flex";
 };
 
 initialize();
