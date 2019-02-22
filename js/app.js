@@ -16,6 +16,7 @@ function shuffle(array) {
 var _gameBoardElement = document.querySelector('.deck');
 var _cards = _gameBoardElement.querySelectorAll('.card');
 var _movesElement = document.querySelector(".moves");
+var _timerElement = document.querySelector(".timer");
 var _starElements = [
     document.getElementById("star1"),
     document.getElementById("star2"),
@@ -29,6 +30,9 @@ var _firstCard;
 var _pendingFlush = false;
 var _totalMatches = 8;
 var _currentMatches = 0;
+var _gameOver = false;
+var _gameTime = 0;
+var _timer = null;
 
 
 /* 
@@ -36,8 +40,9 @@ var _currentMatches = 0;
 */ 
 function initialize() {
     initResetButton();
-    shuffleCardsHandler();
     setMoveCount(0);
+    shuffleCards();
+    resetTimerOnDOM();
 };
 
 /* 
@@ -49,16 +54,40 @@ function initResetButton() {
         _currentMatchClass = _awaitingFirstCardClass;
         _firstCard = null;
         _currentMatches = 0;
+        _gameOver = false;
         setMoveCount(0);
         resetStars();
-        shuffleCardsHandler();
+        clearTimer();
+        shuffleCards();
     };
 };
 
 /* 
+ *  creates and adds a click listener to implement reset logic
+*/ 
+function startTimer() {
+    // increase _gameTime every second
+    _timer = setInterval(function() {
+        if (_gameOver) {
+            clearTimer();
+        }
+
+        _gameTime++;
+        _timerElement.innerHTML = _gameTime;
+    }, 1000);
+};
+
+function clearTimer() {
+    clearInterval(_timer);
+    resetTimerOnDOM();
+    _gameTime = 0;
+    _timer = null;
+}
+
+/* 
  *  reinitializes the cards for a new game
 */ 
-function shuffleCardsHandler() {
+function shuffleCards() {
     var shuffledCards = shuffle(Array.from(_cards));
 
     shuffledCards.forEach(function(card) {
@@ -90,6 +119,10 @@ function onClickHandler(event) {
  *  the many events that can happen on card flip
 */ 
 function openCardHandler(card) {
+    if (_timer === null) {
+        startTimer();
+    }
+
     var openedCardClassName = "card open show";
     card.className = openedCardClassName;
 
@@ -99,7 +132,7 @@ function openCardHandler(card) {
         secondCardTurnedHandler(card);
         setMoveCount(getMoveCount() + 1);
         checkStarStatus();
-    } 
+    }
 
     if (_currentMatches === _totalMatches) {
         sendWinDialog();
@@ -164,11 +197,11 @@ function successfullyMatchedHandler(match1, match2) {
 */ 
 function checkStarStatus() {
     var check = getMoveCount() - 1;
-    if (check === _totalMatches) {
+    if (check === 10) {
         _starElements[0].style.display = "none";
-    } else if (check === _totalMatches * 2) {
+    } else if (check === 20) {
         _starElements[1].style.display = "none";
-    } else if (check === _totalMatches * 3) {
+    } else if (check === 30) {
         _starElements[2].style.display = "none";
     }
 };
@@ -201,8 +234,14 @@ function resetStars() {
     _starElements[2].style.display = "";
 };
 
+function resetTimerOnDOM() {
+    _timerElement.innerHTML = 0;
+};
+
 function sendWinDialog() {
-    window.alert("Congratulations, you won in " + getMoveCount() + " moves!");
+    _gameOver = true;
+    var finishTime = _gameTime;
+    window.alert("Congratulations, you won in " + finishTime + " seconds with " + getMoveCount() + " moves!");
 };
 
 initialize();
