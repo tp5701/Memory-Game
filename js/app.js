@@ -34,7 +34,7 @@ var _pendingFlush = false;
 function initialize() {
     initResetButton();
     shuffleCardsHandler();
-    _movesElement.innerHTML = 0;
+    setMoveCount(0);
 }
 
 function initResetButton() {
@@ -43,9 +43,17 @@ function initResetButton() {
         shuffleCardsHandler();
         _currentMatchClass = _awaitingFirstCardClass;
         _firstCard = null;
-        _movesElement.innerHTML = 0;
+        setMoveCount(0);
     };
 };
+
+function setMoveCount(number) {
+    _movesElement.innerHTML = number;
+};
+
+function getMoveCount() {
+    return parseInt(_movesElement.innerHTML);
+}
 
 function shuffleCardsHandler() {
     var shuffledCards = shuffle(Array.from(_cards));
@@ -56,8 +64,6 @@ function shuffleCardsHandler() {
         _gameBoardElement.appendChild(card);
     });
 };
-
-
 
 function onClickHandler(event) {
     // EXIT CASE: we want to wait for previous selections to clear
@@ -78,7 +84,7 @@ function openCardHandler(card) {
     if (_currentMatchClass === _awaitingFirstCardClass) {
         firstCardTurnedHandler(card);
     } else {
-        _movesElement.innerHTML = parseInt(_movesElement.innerHTML) + 1;
+        setMoveCount(getMoveCount() + 1);
         secondCardTurnedHandler(card);
     } 
 };
